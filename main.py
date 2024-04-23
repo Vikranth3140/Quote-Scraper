@@ -4,12 +4,14 @@ from bs4 import BeautifulSoup
 
 # Base URL of the website to scrape
 base_url = 'http://quotes.toscrape.com'
+
 # Initial page URL
 url = base_url + '/page/1'
 
 # Create a directory to store scraped data
-if not os.path.exists('scraped_quotes'):
-    os.makedirs('scraped_quotes')
+directory = 'scraped_quotes'
+if not os.path.exists(directory):
+    os.makedirs(directory)
 
 # Function to scrape quotes and authors from a page and save to a text file
 def scrape_page(url, page_num):
@@ -23,6 +25,7 @@ def scrape_page(url, page_num):
                 quote = quote_block.find('span', class_='text').text.strip()
                 author = quote_block.find('small', class_='author').text.strip()
                 file.write(f'Quote: {quote}\nAuthor: {author}\n\n')
+        print(f'Quotes from page {page_num} saved to {file_name}')
 
 # Scraping the first page
 print(f'Scraping page 1...')
