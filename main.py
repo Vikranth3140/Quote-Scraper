@@ -1,24 +1,33 @@
 import requests
 from bs4 import BeautifulSoup
 
-# URL of the website to scrape
-url = 'http://quotes.toscrape.com/'
+# Base URL of the website to scrape
+base_url = 'http://quotes.toscrape.com'
+# Initial page URL
+url = base_url + '/page/1'
 
-# Send a GET request to the URL
-response = requests.get(url)
+# Function to scrape quotes and authors from a page
+def scrape_page(url):
+    response = requests.get(url)
+    if response.status_code == 200:
+        soup = BeautifulSoup(response.content, 'lxml')
+        quote_blocks = soup.find_all('div', class_='quote')
+        for quote_block in quote_blocks:
+            quote = quote_block.find('span', class_='text').text.strip()
+            author = quote_block.find('small', class_='author').text.strip()
+            print(f'Quote: {quote}\nAuthor: {author}\n')
 
-# Check if the request was successful
-if response.status_code == 200:
-    # Parse the HTML content of the page using BeautifulSoup
-    soup = BeautifulSoup(response.content, 'lxml')
-    
-    # Find all the quote blocks on the page
-    quote_blocks = soup.find_all('div', class_='quote')
-    
-    # Extract quotes and authors from each block
-    for quote_block in quote_blocks:
-        quote = quote_block.find('span', class_='text').text.strip()
-        author = quote_block.find('small', class_='author').text.strip()
-        print(f'Quote: {quote}\nAuthor: {author}\n')
-else:
-    print('Failed to retrieve the web page.')
+# Scraping the first page
+scrape_page(url)
+
+# Scraping subsequent pages if available
+page_num = 2
+while True:
+    next_page = base_url + f'/page/{page_num}'
+    response = requests.get(next_page)
+    if response.status_code == 200:
+        print(f'Scraping page {page_num}...')
+        scrape_page(next_page)
+        page_num += 1
+    else:
+        break
